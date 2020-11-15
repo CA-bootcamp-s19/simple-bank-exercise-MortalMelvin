@@ -51,13 +51,13 @@ contract SimpleBank {
     // Typically, called when invalid data is sent
     // Added so ether sent to this contract is reverted if the contract fails
     // otherwise, the sender's money is transferred to contract
-    function fallback() external payable {
+    fallback() external payable {
         revert();
     }
 
 
-    /// @notice Get balance
-    /// @return The balance of the user
+    // ATnotice Get balance
+    // ATreturn The balance of the user
     // A SPECIAL KEYWORD prevents function from editing state variables;
     // allows function to run locally/off blockchain
     function getBalance() public view returns (uint) {
@@ -65,8 +65,8 @@ contract SimpleBank {
 		return balances[msg.sender];
     }
 
-    /// @notice Enroll a customer with the bank
-    /// @return The users enrolled status
+    // ATnotice Enroll a customer with the bank
+    // ATreturn The users enrolled status
     // Emit the appropriate event
     function enroll() public returns (bool){
         address user = msg.sender;
@@ -75,8 +75,8 @@ contract SimpleBank {
         return enrolled[user];
     }
 
-    /// @notice Deposit ether into bank
-    /// @return The balance of the user after the deposit is made
+    // ATnotice Deposit ether into bank
+    // ATreturn The balance of the user after the deposit is made
     // Add the appropriate keyword so that this function can receive ether
     // Use the appropriate global variables to get the transaction sender and value
     // Emit the appropriate event    
@@ -90,10 +90,10 @@ contract SimpleBank {
         return balances[user];
     }
 
-    /// @notice Withdraw ether from bank
-    /// @dev This does not return any excess ether sent to it
-    /// @param withdrawAmount amount you want to withdraw
-    /// @return The balance remaining for the user
+    // ATnotice Withdraw ether from bank
+    // ATdev This does not return any excess ether sent to it
+    // ATparam withdrawAmount amount you want to withdraw
+    // ATreturn The balance remaining for the user
     // Emit the appropriate event    
     function withdraw(uint withdrawAmount) public returns (uint newBalance) {
         /* If the sender's balance is at least the amount they want to withdraw,
