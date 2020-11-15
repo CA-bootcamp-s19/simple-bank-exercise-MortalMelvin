@@ -1,10 +1,10 @@
 /*
-    This exercise has been updated to use Solidity version 0.6.12
+    This exercise has been updated to use Solidity version 0.5.16
     Breaking changes from 0.5 to 0.6 can be found here: 
     https://solidity.readthedocs.io/en/v0.6.12/060-breaking-changes.html
 */
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.5.16;
 
 contract SimpleBank {
 
@@ -16,7 +16,7 @@ contract SimpleBank {
     mapping (address => uint) private balances;
     
     /* Fill in the keyword. We want to create a getter function and allow contracts to be able to see if a user is enrolled.  */
-    mapping (address => bool) enrolled;
+    mapping (address => bool) public enrolled;
 
     /* Let's make sure everyone knows who owns the bank. Use the appropriate keyword for this*/
     address public owner;
@@ -41,7 +41,7 @@ contract SimpleBank {
     //
 
     /* Use the appropriate global variable to get the sender of the transaction */
-    constructor() public {
+    constructor() public payable {
         /* Set the owner to the creator of this contract */
         owner = msg.sender;
     }
@@ -51,16 +51,18 @@ contract SimpleBank {
     // Typically, called when invalid data is sent
     // Added so ether sent to this contract is reverted if the contract fails
     // otherwise, the sender's money is transferred to contract
-    fallback() external payable {
+    function fallback() external payable {
         revert();
     }
+
 
     /// @notice Get balance
     /// @return The balance of the user
     // A SPECIAL KEYWORD prevents function from editing state variables;
     // allows function to run locally/off blockchain
-    function getBalance() public returns (uint) {
+    function getBalance() public view returns (uint) {
         /* Get the balance of the sender of this transaction */
+		return balances[msg.sender];
     }
 
     /// @notice Enroll a customer with the bank
@@ -68,9 +70,9 @@ contract SimpleBank {
     // Emit the appropriate event
     function enroll() public returns (bool){
         address user = msg.sender;
-        status[user] = true;
+        enrolled[user] = true;
         emit LogEnrolled(user);
-        return user.status;
+        return enrolled[user];
     }
 
     /// @notice Deposit ether into bank
@@ -79,12 +81,12 @@ contract SimpleBank {
     // Use the appropriate global variables to get the transaction sender and value
     // Emit the appropriate event    
     // Users should be enrolled before they can make deposits
-    function deposit() public returns (uint) {
+    function deposit() public payable returns (uint amount) {
         /* Add the amount to the user's balance, call the event associated with a deposit,
           then return the balance of the user */
         address user = msg.sender;
         balances[user] += msg.value;
-        emit LogDepositMade(user, msg.value);
+        emit LogDepositMade(user, balances[user]);
         return balances[user];
     }
 
@@ -93,7 +95,7 @@ contract SimpleBank {
     /// @param withdrawAmount amount you want to withdraw
     /// @return The balance remaining for the user
     // Emit the appropriate event    
-    function withdraw(uint withdrawAmount) public returns (uint) {
+    function withdraw(uint withdrawAmount) public returns (uint newBalance) {
         /* If the sender's balance is at least the amount they want to withdraw,
            Subtract the amount from the sender's balance, and try to send that amount of ether
            to the user attempting to withdraw. 
@@ -102,11 +104,8 @@ contract SimpleBank {
         
         // require(withdrawAmount >= owner.balance);
         require(balances[user] >= withdrawAmount);
-
         balances[user] -= withdrawAmount; 
-       
-        user.transfer(withdrawAmount);
-    
+		emit LogWithdrawal(user, withdrawAmount, newBalance) ;
         return balances[user];
     }
 
